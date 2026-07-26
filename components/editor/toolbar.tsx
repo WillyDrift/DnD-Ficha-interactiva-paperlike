@@ -11,7 +11,7 @@ import {
   FiCheck,
 } from "react-icons/fi";
 import { useSheet } from "./sheet-context";
-import { COLOR_PRESETS } from "@/lib/sheet";
+import { COLOR_PRESETS, DEFAULT_COLORS } from "@/lib/sheet";
 import type { CharacterExport } from "@/lib/types";
 
 export default function Toolbar({
@@ -151,6 +151,15 @@ function ColorPopover({ onClose }: { onClose: () => void }) {
         <ColorRow label="Fondo" value={c.bg} onChange={(v) => setColors({ ...c, bg: v })} />
         <ColorRow label="Detalles" value={c.detail} onChange={(v) => setColors({ ...c, detail: v })} />
         <ColorRow label="Destacado" value={c.highlight} onChange={(v) => setColors({ ...c, highlight: v })} />
+
+        <button
+          type="button"
+          onClick={() => setColors(DEFAULT_COLORS)}
+          className="btn w-full mt-3 !py-1.5 text-sm"
+        >
+          Por defecto
+        </button>
+
         <div className="mt-3">
           <span className="flabel flabel-xs opacity-80">Combinaciones</span>
           <div className="flex flex-wrap gap-2 mt-1">

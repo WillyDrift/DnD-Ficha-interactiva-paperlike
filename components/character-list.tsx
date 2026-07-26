@@ -149,9 +149,9 @@ export default function CharacterList({
 function Avatar({ url, name }: { url: string | null; name: string }) {
   return (
     <div
-      className="h-16 w-16 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center border-2"
+      className="h-16 w-16 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center border-[3px]"
       style={{
-        borderColor: "var(--detail)",
+        borderColor: "var(--highlight)",
         background: "color-mix(in srgb, var(--detail) 10%, transparent)",
       }}
     >
