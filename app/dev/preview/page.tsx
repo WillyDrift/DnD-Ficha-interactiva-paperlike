@@ -25,6 +25,8 @@ export default function DevPreviewPage() {
   data.hpMax = "32";
   data.hpCurrent = "32";
   data.hitDice = "3d12";
+  data.attacks[0] = { ...data.attacks[0], name: "Hacha a dos manos", bonus: "+7", damage: "1d12+4", types: ["slashing"] };
+  data.attacks[1] = { ...data.attacks[1], name: "Aliento gélido", bonus: "+5", damage: "2d6", types: ["cold", "force"] };
   data.equipment = [
     { id: newId(), icon: "GiBattleAxe", text: "Hacha a dos manos" },
     { id: newId(), icon: "GiAnvil", text: "Herramientas de herrero" },

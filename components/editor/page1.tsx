@@ -1,6 +1,8 @@
 "use client";
 
-import { ABILITIES, SKILLS, type AbilityKey } from "@/lib/sheet";
+import { useState } from "react";
+import { FiPlus } from "react-icons/fi";
+import { ABILITIES, SKILLS, type AbilityKey, type Attack } from "@/lib/sheet";
 import { useSheet } from "./sheet-context";
 import { Frame, AbilityBox, Dot, StatBox } from "./fields";
 import {
@@ -13,6 +15,7 @@ import {
   THeaderField,
 } from "./connected";
 import SheetHeader from "./sheet-header";
+import DamageTypePicker, { DamageIcon } from "./damage-picker";
 
 export default function Page1() {
   return (
@@ -260,7 +263,7 @@ function AttacksBlock() {
       ...s,
       attacks: [
         ...s.attacks,
-        { id: crypto.randomUUID(), name: "", bonus: "", damage: "" },
+        { id: crypto.randomUUID(), name: "", bonus: "", damage: "", types: [] },
       ],
     }));
   return (
@@ -274,7 +277,7 @@ function AttacksBlock() {
         <div key={a.id} className="grid grid-cols-[1fr_52px_1fr] gap-1 border-b border-[var(--line)]">
           <input value={a.name} onChange={(e) => set(a.id, "name", e.target.value)} className="sheet-field text-left px-1 py-0.5" aria-label="Nombre del ataque" />
           <input value={a.bonus} onChange={(e) => set(a.id, "bonus", e.target.value)} className="sheet-field text-center py-0.5" aria-label="Bonificador" />
-          <input value={a.damage} onChange={(e) => set(a.id, "damage", e.target.value)} className="sheet-field text-left px-1 py-0.5" aria-label="Daño y tipo" />
+          <DamageCell attack={a} />
         </div>
       ))}
       <button type="button" onClick={add} className="text-xs mt-1 opacity-60 hover:opacity-100">
@@ -284,6 +287,64 @@ function AttacksBlock() {
         <SList k="attacksNotes" minRows={2} dense placeholder="Notas, conjuros, munición…" />
       </div>
     </Frame>
+  );
+}
+
+function DamageCell({ attack }: { attack: Attack }) {
+  const { setData } = useSheet();
+  const [open, setOpen] = useState(false);
+  const types = attack.types ?? [];
+
+  const setDamage = (v: string) =>
+    setData(
+      (s) => ({
+        ...s,
+        attacks: s.attacks.map((a) => (a.id === attack.id ? { ...a, damage: v } : a)),
+      }),
+      `atk-${attack.id}-damage`
+    );
+
+  const toggleType = (key: string) =>
+    setData((s) => ({
+      ...s,
+      attacks: s.attacks.map((a) => {
+        if (a.id !== attack.id) return a;
+        const t = a.types ?? [];
+        return {
+          ...a,
+          types: t.includes(key) ? t.filter((x) => x !== key) : [...t, key],
+        };
+      }),
+    }));
+
+  return (
+    <div className="flex items-center gap-1 min-w-0">
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        title="Tipo(s) de daño"
+        className="flex items-center gap-0.5 px-1 h-6 rounded flex-shrink-0 hover:bg-[color-mix(in_srgb,var(--highlight)_18%,transparent)]"
+        style={{ color: "var(--highlight)" }}
+      >
+        {types.length ? (
+          types.map((k) => <DamageIcon key={k} typeKey={k} size={13} />)
+        ) : (
+          <FiPlus size={12} style={{ color: "var(--detail)", opacity: 0.55 }} />
+        )}
+      </button>
+      <input
+        value={attack.damage}
+        onChange={(e) => setDamage(e.target.value)}
+        className="sheet-field text-left px-1 py-0.5 flex-1 min-w-0"
+        aria-label="Daño y tipo"
+      />
+      <DamageTypePicker
+        open={open}
+        onClose={() => setOpen(false)}
+        selected={types}
+        onToggle={toggleType}
+      />
+    </div>
   );
 }
 

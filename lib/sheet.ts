@@ -44,7 +44,13 @@ export const SKILLS: { key: string; label: string; ability: string }[] = [
 export type ProfValue = { prof: boolean; value: string };
 export type AbilityValue = { score: string; mod: string };
 
-export type Attack = { id: string; name: string; bonus: string; damage: string };
+export type Attack = {
+  id: string;
+  name: string;
+  bonus: string;
+  damage: string;
+  types: string[]; // claves de tipos de daño (ver lib/damage.ts)
+};
 
 export type SpellRow = { id: string; prepared: boolean; name: string };
 export type SpellLevel = {
@@ -192,6 +198,7 @@ export function defaultSheet(): SheetData {
       name: "",
       bonus: "",
       damage: "",
+      types: [],
     })),
     attacksNotes: emptyLines(3),
     coins: { pc: "", pp: "", pe: "", po: "", ppt: "" },
@@ -250,6 +257,17 @@ export function normalizeSheet(raw: unknown): SheetData {
   merged.coins = { ...base.coins, ...(r.coins as object) } as SheetData["coins"];
   if (!Array.isArray(merged.spellLevels) || merged.spellLevels.length !== 9) {
     merged.spellLevels = base.spellLevels;
+  }
+  // Asegura que cada ataque tenga el campo `types` (datos antiguos)
+  if (Array.isArray(merged.attacks)) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    merged.attacks = merged.attacks.map((a: any) => ({
+      id: a?.id ?? newId(),
+      name: a?.name ?? "",
+      bonus: a?.bonus ?? "",
+      damage: a?.damage ?? "",
+      types: Array.isArray(a?.types) ? a.types : [],
+    }));
   }
   merged.version = 1;
   return merged;
