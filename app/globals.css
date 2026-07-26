@@ -1,0 +1,195 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #efe6d0;
+  --detail: #2b2b2b;
+  --highlight: #7a1f1f;
+  --font-serif: Georgia, "Times New Roman", serif;
+  --font-heading: "Cinzel", "Trajan Pro", Georgia, serif;
+  /* derivados */
+  --line: color-mix(in srgb, var(--detail) 30%, transparent);
+  --line-strong: color-mix(in srgb, var(--detail) 55%, transparent);
+  --paper-2: color-mix(in srgb, var(--detail) 6%, var(--bg));
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-serif);
+  background: #d9cfb8;
+  color: #222;
+}
+
+/* ====================== TEMA PAPEL ====================== */
+@layer components {
+  .paper {
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(
+        transparent 0,
+        color-mix(in srgb, var(--detail) 3%, transparent) 100%
+      );
+    color: var(--detail);
+    font-family: var(--font-serif);
+  }
+
+  /* Marco tipo "cartucho": doble línea + esquinas redondeadas suaves */
+  .frame {
+    position: relative;
+    border: 1.5px solid var(--detail);
+    border-radius: 12px;
+    box-shadow: inset 0 0 0 3px var(--bg), inset 0 0 0 4px var(--line-strong);
+    background: transparent;
+  }
+  .frame-soft {
+    border: 1.5px solid var(--line-strong);
+    border-radius: 10px;
+  }
+
+  /* Etiqueta de sección (versalitas, como en la ficha) */
+  .flabel {
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    font-weight: 700;
+    line-height: 1.05;
+    color: var(--detail);
+  }
+  .flabel-sm {
+    font-size: 0.62rem;
+  }
+  .flabel-xs {
+    font-size: 0.55rem;
+    letter-spacing: 0.06em;
+  }
+
+  /* Título centrado al pie del marco */
+  .frame-caption {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -0.55rem;
+    text-align: center;
+  }
+  .frame-caption span {
+    background: var(--bg);
+    padding: 0 0.4rem;
+  }
+
+  /* Inputs estilo "línea de ficha" */
+  .sheet-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--detail);
+    font-family: var(--font-serif);
+    text-align: center;
+  }
+  .sheet-input::placeholder {
+    color: color-mix(in srgb, var(--detail) 40%, transparent);
+  }
+  .sheet-underline {
+    border-bottom: 1.5px solid var(--line-strong);
+  }
+  .sheet-field {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--detail);
+    font-family: var(--font-serif);
+    width: 100%;
+  }
+
+  /* Puntito marcable */
+  .dot {
+    display: inline-block;
+    width: 0.85rem;
+    height: 0.85rem;
+    border-radius: 9999px;
+    border: 1.5px solid var(--detail);
+    background: transparent;
+    cursor: pointer;
+    flex: 0 0 auto;
+    transition: background 0.1s ease;
+    padding: 0;
+  }
+  .dot[data-on="true"] {
+    background: var(--highlight);
+    border-color: var(--highlight);
+  }
+  .dot:hover {
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--highlight) 35%, transparent);
+  }
+
+  /* Barra de título destacada (p. ej. cabecera de tabla de ataques) */
+  .hl-bar {
+    background: color-mix(in srgb, var(--highlight) 16%, transparent);
+    color: var(--detail);
+  }
+
+  /* Botones de la app (fuera de la ficha) */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    border-radius: 8px;
+    padding: 0.5rem 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1.5px solid var(--detail);
+    background: var(--bg);
+    color: var(--detail);
+    transition: transform 0.05s ease, background 0.1s ease;
+  }
+  .btn:hover {
+    background: color-mix(in srgb, var(--detail) 8%, var(--bg));
+  }
+  .btn:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--highlight);
+    border-color: var(--highlight);
+    color: #fff;
+  }
+  .btn-primary:hover {
+    background: color-mix(in srgb, #000 10%, var(--highlight));
+  }
+  .btn-danger {
+    background: #8a1f1f;
+    border-color: #8a1f1f;
+    color: #fff;
+  }
+  .btn-ghost {
+    border-color: transparent;
+    background: transparent;
+  }
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+/* Líneas de escritura para áreas multilínea */
+.ruled {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent calc(1.6rem - 1.5px),
+    var(--line) calc(1.6rem - 1.5px),
+    var(--line) 1.6rem
+  );
+}
+
+/* Scrollbar discreta */
+* {
+  scrollbar-width: thin;
+}
