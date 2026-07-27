@@ -17,7 +17,7 @@ export default async function HomePage() {
 
   const { data: characters } = await supabase
     .from("characters")
-    .select("id,name,race,class,level,avatar_url,colors,updated_at")
+    .select("id,name,race,class,level,avatar_url,avatar_thumb_url,colors,updated_at")
     .order("sort_order", { ascending: true })
     .order("created_at", { ascending: true });
 

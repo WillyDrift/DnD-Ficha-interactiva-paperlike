@@ -1,29 +1,53 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { FiCamera, FiX, FiZoomIn } from "react-icons/fi";
+import { FiCamera, FiCrop, FiX, FiZoomIn } from "react-icons/fi";
 import { GiCharacter } from "react-icons/gi";
 import { createClient } from "@/lib/supabase/client";
 import { useSheet } from "./sheet-context";
+import AvatarCropper from "./avatar-cropper";
 
-// Recorta al centro y redimensiona a un cuadrado (máx 768px), devuelve JPEG blob.
-async function toSquareJpeg(file: File, size = 768): Promise<Blob> {
-  const img = document.createElement("img");
+function loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((res, rej) => {
+    const img = document.createElement("img");
+    img.onload = () => res(img);
+    img.onerror = () => rej(new Error("img"));
+    img.src = src;
+  });
+}
+
+// Redimensiona preservando proporción a `max` px en el lado mayor (imagen completa).
+async function toMaxJpeg(file: File, max = 1200): Promise<Blob> {
   const url = URL.createObjectURL(file);
   try {
-    await new Promise<void>((res, rej) => {
-      img.onload = () => res();
-      img.onerror = () => rej(new Error("img"));
-      img.src = url;
-    });
+    const img = await loadImage(url);
+    const scale = Math.min(1, max / Math.max(img.width, img.height));
+    const cw = Math.max(1, Math.round(img.width * scale));
+    const ch = Math.max(1, Math.round(img.height * scale));
+    const canvas = document.createElement("canvas");
+    canvas.width = cw;
+    canvas.height = ch;
+    canvas.getContext("2d")!.drawImage(img, 0, 0, cw, ch);
+    return await new Promise<Blob>((res) =>
+      canvas.toBlob((b) => res(b!), "image/jpeg", 0.9)
+    );
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+// Recorte cuadrado centrado (miniatura por defecto).
+async function toSquareJpeg(file: File, size = 256): Promise<Blob> {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await loadImage(url);
     const side = Math.min(img.width, img.height);
     const sx = (img.width - side) / 2;
     const sy = (img.height - side) / 2;
     const canvas = document.createElement("canvas");
     canvas.width = size;
     canvas.height = size;
-    const ctx = canvas.getContext("2d")!;
-    ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size);
+    canvas.getContext("2d")!.drawImage(img, sx, sy, side, side, 0, 0, size, size);
     return await new Promise<Blob>((res) =>
       canvas.toBlob((b) => res(b!), "image/jpeg", 0.9)
     );
@@ -38,8 +62,10 @@ export default function AvatarUpload({ size = 96 }: { size?: number }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [zoom, setZoom] = useState(false);
+  const [cropOpen, setCropOpen] = useState(false);
 
-  const url = state.avatar_url;
+  const full = state.avatar_url;
+  const thumb = state.avatar_thumb_url ?? state.avatar_url;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -49,8 +75,20 @@ export default function AvatarUpload({ size = 96 }: { size?: number }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [zoom]);
 
-  function openFilePicker() {
-    fileRef.current?.click();
+  async function uploadOrLocal(suffix: string, blob: Blob): Promise<string> {
+    if (devMode) return URL.createObjectURL(blob);
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) throw new Error("Sesión no válida");
+    const path = `${user.id}/${characterId}${suffix}`;
+    const { error } = await supabase.storage
+      .from("avatars")
+      .upload(path, blob, { upsert: true, contentType: "image/jpeg" });
+    if (error) throw error;
+    const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+    return `${data.publicUrl}?t=${Date.now()}`;
   }
 
   async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -60,25 +98,28 @@ export default function AvatarUpload({ size = 96 }: { size?: number }) {
     setErr(null);
     setBusy(true);
     try {
-      const blob = await toSquareJpeg(file);
-      if (devMode) {
-        setTop({ avatar_url: URL.createObjectURL(blob) });
-        return;
-      }
-      const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) throw new Error("Sesión no válida");
-      const path = `${user.id}/${characterId}.jpg`;
-      const { error } = await supabase.storage
-        .from("avatars")
-        .upload(path, blob, { upsert: true, contentType: "image/jpeg" });
-      if (error) throw error;
-      const { data } = supabase.storage.from("avatars").getPublicUrl(path);
-      setTop({ avatar_url: `${data.publicUrl}?t=${Date.now()}` });
+      const fullBlob = await toMaxJpeg(file, 1200);
+      const fullUrl = await uploadOrLocal("-full.jpg", fullBlob);
+      const thumbBlob = await toSquareJpeg(file, 256);
+      const thumbUrl = await uploadOrLocal(".jpg", thumbBlob);
+      setTop({ avatar_url: fullUrl, avatar_thumb_url: thumbUrl });
+      setCropOpen(true); // ofrece ajustar el encuadre de inmediato
     } catch {
       setErr("No se pudo subir la imagen.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onCropConfirm(blob: Blob) {
+    setErr(null);
+    setBusy(true);
+    try {
+      const thumbUrl = await uploadOrLocal(".jpg", blob);
+      setTop({ avatar_thumb_url: thumbUrl });
+      setCropOpen(false);
+    } catch {
+      setErr("No se pudo guardar la miniatura.");
     } finally {
       setBusy(false);
     }
@@ -88,7 +129,7 @@ export default function AvatarUpload({ size = 96 }: { size?: number }) {
     <div className="flex flex-col items-center gap-1.5">
       <button
         type="button"
-        onClick={() => (url ? setZoom(true) : openFilePicker())}
+        onClick={() => (full ? setZoom(true) : fileRef.current?.click())}
         className="relative rounded-full overflow-hidden border-2 group"
         style={{
           width: size,
@@ -96,18 +137,18 @@ export default function AvatarUpload({ size = 96 }: { size?: number }) {
           borderColor: "var(--detail)",
           background: "color-mix(in srgb, var(--detail) 10%, transparent)",
         }}
-        title={url ? "Ver imagen" : "Añadir imagen"}
+        title={full ? "Ver imagen completa" : "Añadir imagen"}
       >
-        {url ? (
+        {thumb ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={url} alt="Avatar" className="h-full w-full object-cover" />
+          <img src={thumb} alt="Avatar" className="h-full w-full object-cover" />
         ) : (
           <span className="h-full w-full flex items-center justify-center">
             <GiCharacter size={size * 0.6} style={{ color: "var(--detail)", opacity: 0.5 }} />
           </span>
         )}
         <span className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition">
-          {url ? <FiZoomIn size={size * 0.26} /> : <FiCamera size={size * 0.26} />}
+          {full ? <FiZoomIn size={size * 0.26} /> : <FiCamera size={size * 0.26} />}
         </span>
       </button>
 
@@ -119,18 +160,27 @@ export default function AvatarUpload({ size = 96 }: { size?: number }) {
         onChange={onFile}
       />
 
-      <div className="flex items-center gap-3 text-[11px]">
+      <div className="flex items-center gap-2 text-[11px] flex-wrap justify-center">
         <button
           type="button"
-          onClick={openFilePicker}
+          onClick={() => fileRef.current?.click()}
           className="inline-flex items-center gap-1 opacity-70 hover:opacity-100"
         >
           <FiCamera size={12} /> Cambiar
         </button>
-        {url && (
+        {full && (
           <button
             type="button"
-            onClick={() => setTop({ avatar_url: null })}
+            onClick={() => setCropOpen(true)}
+            className="inline-flex items-center gap-1 opacity-70 hover:opacity-100"
+          >
+            <FiCrop size={12} /> Encuadre
+          </button>
+        )}
+        {(full || state.avatar_thumb_url) && (
+          <button
+            type="button"
+            onClick={() => setTop({ avatar_url: null, avatar_thumb_url: null })}
             className="inline-flex items-center gap-1 opacity-70 hover:opacity-100"
           >
             <FiX size={12} /> Quitar
@@ -138,14 +188,14 @@ export default function AvatarUpload({ size = 96 }: { size?: number }) {
         )}
       </div>
 
-      {busy && <span className="text-[10px] opacity-70">Subiendo…</span>}
+      {busy && <span className="text-[10px] opacity-70">Procesando…</span>}
       {err && (
         <span className="text-[10px]" style={{ color: "#a11" }}>
           {err}
         </span>
       )}
 
-      {zoom && url && (
+      {zoom && full && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70"
           onClick={() => setZoom(false)}
@@ -160,13 +210,21 @@ export default function AvatarUpload({ size = 96 }: { size?: number }) {
           </button>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={url}
+            src={full}
             alt="Avatar"
             onClick={(e) => e.stopPropagation()}
             className="max-h-[85vh] max-w-[85vw] rounded-lg shadow-2xl object-contain"
             style={{ border: "4px solid var(--bg)" }}
           />
         </div>
+      )}
+
+      {cropOpen && full && (
+        <AvatarCropper
+          imageUrl={full}
+          onCancel={() => setCropOpen(false)}
+          onConfirm={onCropConfirm}
+        />
       )}
     </div>
   );

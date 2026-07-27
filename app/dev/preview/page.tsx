@@ -52,6 +52,7 @@ export default function DevPreviewPage() {
     level: "3",
     avatar_url:
       "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNDAiIGhlaWdodD0iMjQwIj48cmVjdCB3aWR0aD0iMjQwIiBoZWlnaHQ9IjI0MCIgZmlsbD0iIzNhMjQxNyIvPjxjaXJjbGUgY3g9IjEyMCIgY3k9Ijk1IiByPSI0OCIgZmlsbD0iI2M5YTI0YiIvPjxyZWN0IHg9IjU1IiB5PSIxNTAiIHdpZHRoPSIxMzAiIGhlaWdodD0iOTAiIHJ4PSIyNiIgZmlsbD0iIzdhMWYxZiIvPjwvc3ZnPg==",
+    avatar_thumb_url: null,
     colors: DEFAULT_COLORS,
     data,
     sort_order: 0,

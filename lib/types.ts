@@ -13,7 +13,8 @@ export type Character = {
   race: string;
   class: string;
   level: string;
-  avatar_url: string | null;
+  avatar_url: string | null; // imagen completa (se ve en grande)
+  avatar_thumb_url: string | null; // recorte para la miniatura
   colors: Colors;
   data: SheetData;
   sort_order: number;

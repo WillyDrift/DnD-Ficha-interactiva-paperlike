@@ -18,13 +18,14 @@ export type EditState = {
   class: string;
   level: string;
   avatar_url: string | null;
+  avatar_thumb_url: string | null;
   colors: Colors;
   data: SheetData;
 };
 
 export type SaveStatus = "idle" | "saving" | "saved" | "error";
 
-type TopKey = "name" | "race" | "class" | "level" | "avatar_url";
+type TopKey = "name" | "race" | "class" | "level" | "avatar_url" | "avatar_thumb_url";
 
 type Ctx = {
   state: EditState;
@@ -153,6 +154,7 @@ export function SheetProvider({
         class: s.class,
         level: s.level,
         avatar_url: s.avatar_url,
+        avatar_thumb_url: s.avatar_thumb_url,
         colors: s.colors,
         data: s.data,
       })

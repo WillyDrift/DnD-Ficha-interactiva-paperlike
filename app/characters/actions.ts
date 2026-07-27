@@ -44,6 +44,7 @@ export async function deleteCharacter(id: string) {
     `${user.id}/${id}.jpg`,
     `${user.id}/${id}.jpeg`,
     `${user.id}/${id}.webp`,
+    `${user.id}/${id}-full.jpg`,
   ]);
 
   const { error } = await supabase.from("characters").delete().eq("id", id);

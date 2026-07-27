@@ -21,6 +21,7 @@ export default function Editor({
     class: initial.class,
     level: initial.level,
     avatar_url: initial.avatar_url,
+    avatar_thumb_url: initial.avatar_thumb_url,
     colors: initial.colors,
     data: initial.data,
   };

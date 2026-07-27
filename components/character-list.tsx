@@ -109,7 +109,10 @@ export default function CharacterList({
                   href={`/character/${c.id}`}
                   className="flex items-center gap-4 flex-1 min-w-0"
                 >
-                  <Avatar url={c.avatar_url ?? null} name={name} />
+                  <Avatar
+                    url={c.avatar_thumb_url ?? c.avatar_url ?? null}
+                    name={name}
+                  />
                   <div className="min-w-0">
                     <div className="flabel text-lg leading-tight truncate">
                       {name}
