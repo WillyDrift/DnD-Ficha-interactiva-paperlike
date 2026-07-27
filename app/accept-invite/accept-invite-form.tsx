@@ -3,10 +3,19 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import type { EmailOtpType } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 
-export default function AcceptInviteForm() {
-  const [checking, setChecking] = useState(true);
+type Phase = "loading" | "confirm" | "setpw" | "invalid";
+
+export default function AcceptInviteForm({
+  tokenHash,
+  otpType,
+}: {
+  tokenHash: string | null;
+  otpType: string;
+}) {
+  const [phase, setPhase] = useState<Phase>("loading");
   const [email, setEmail] = useState<string | null>(null);
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
@@ -14,15 +23,44 @@ export default function AcceptInviteForm() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  // NO verificamos el token al cargar (un GET de un escáner de enlaces
+  // consumiría el token de un solo uso). Solo mostramos el estado.
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => {
-      setEmail(data.user?.email ?? null);
-      setChecking(false);
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) {
+        setEmail(data.session.user.email ?? null);
+        setPhase("setpw");
+      } else if (tokenHash) {
+        setPhase("confirm");
+      } else {
+        setPhase("invalid");
+      }
     });
-  }, []);
+  }, [tokenHash]);
 
-  async function onSubmit(e: React.FormEvent) {
+  async function onConfirm() {
+    if (!tokenHash) {
+      setPhase("invalid");
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    const supabase = createClient();
+    const { data, error } = await supabase.auth.verifyOtp({
+      type: (otpType as EmailOtpType) || "recovery",
+      token_hash: tokenHash,
+    });
+    setLoading(false);
+    if (error || !data.session) {
+      setPhase("invalid");
+      return;
+    }
+    setEmail(data.session.user.email ?? null);
+    setPhase("setpw");
+  }
+
+  async function onSetPassword(e: React.FormEvent) {
     e.preventDefault();
     if (password.length < 8) {
       setError("La contraseña debe tener al menos 8 caracteres.");
@@ -37,7 +75,7 @@ export default function AcceptInviteForm() {
     const supabase = createClient();
     const { error } = await supabase.auth.updateUser({ password });
     if (error) {
-      setError("No se pudo guardar la contraseña. Prueba a abrir el enlace de nuevo.");
+      setError("No se pudo guardar la contraseña. Vuelve a abrir el enlace.");
       setLoading(false);
       return;
     }
@@ -45,18 +83,18 @@ export default function AcceptInviteForm() {
     router.refresh();
   }
 
-  if (checking) {
-    return <p className="text-center opacity-70">Comprobando invitación…</p>;
+  if (phase === "loading") {
+    return <p className="text-center opacity-70">Un momento…</p>;
   }
 
-  if (!email) {
+  if (phase === "invalid") {
     return (
       <div className="text-center space-y-4">
         <p className="text-sm" style={{ color: "#a11" }}>
-          Este enlace no es válido o ha caducado.
+          Este enlace no es válido o ya se ha usado.
         </p>
         <p className="text-sm opacity-70">
-          Pide a tu administrador que te reenvíe la invitación.
+          Pide a tu administrador que te genere una invitación nueva.
         </p>
         <Link href="/login" className="btn w-full">
           Ir al inicio de sesión
@@ -65,11 +103,36 @@ export default function AcceptInviteForm() {
     );
   }
 
+  if (phase === "confirm") {
+    return (
+      <div className="text-center space-y-4">
+        <p className="text-sm opacity-80">
+          Pulsa el botón para activar tu cuenta y elegir tu contraseña.
+        </p>
+        {error && (
+          <p className="text-sm" style={{ color: "#a11" }}>
+            {error}
+          </p>
+        )}
+        <button
+          onClick={onConfirm}
+          className="btn btn-primary w-full"
+          disabled={loading}
+        >
+          {loading ? "Activando…" : "Continuar"}
+        </button>
+      </div>
+    );
+  }
+
+  // phase === "setpw"
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <p className="text-sm text-center opacity-80">
-        Cuenta: <strong>{email}</strong>
-      </p>
+    <form onSubmit={onSetPassword} className="space-y-4">
+      {email && (
+        <p className="text-sm text-center opacity-80">
+          Cuenta: <strong>{email}</strong>
+        </p>
+      )}
       <label className="block">
         <span className="flabel flabel-sm">Nueva contraseña</span>
         <input

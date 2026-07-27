@@ -17,7 +17,7 @@ async function assertAdmin() {
 }
 
 export type InviteResult =
-  | { ok: true; link: string; emailAttempted: boolean; alreadyExisted: boolean }
+  | { ok: true; link: string; alreadyExisted: boolean }
   | { ok: false; error: string };
 
 // Crea (si hace falta) la cuenta invitada y devuelve un enlace para que la
@@ -45,17 +45,9 @@ export async function inviteUser(emailRaw: string): Promise<InviteResult> {
   });
   const alreadyExisted = !!createErr && !created?.user;
 
-  // Intento de email por el proveedor por defecto (best-effort; en plan free
-  // puede no llegar). No bloquea: el enlace copiable es el mecanismo fiable.
-  let emailAttempted = false;
-  if (!alreadyExisted) {
-    const { error: inviteErr } = await admin.auth.admin.inviteUserByEmail(email, {
-      redirectTo,
-    });
-    emailAttempted = !inviteErr;
-  }
-
-  // Enlace fiable (funciona en cualquier plan): token_hash -> /auth/confirm
+  // Enlace de invitación con confirmación por botón: el token solo se consume
+  // al pulsar "Continuar" en /accept-invite, no al abrir la URL. Así los
+  // escáneres de enlaces (email/mensajería) no invalidan la invitación.
   const { data: linkData, error: linkErr } = await admin.auth.admin.generateLink({
     type: "recovery",
     email,
@@ -70,7 +62,7 @@ export async function inviteUser(emailRaw: string): Promise<InviteResult> {
   }
 
   const tokenHash = linkData.properties.hashed_token;
-  const link = `${origin}/auth/confirm?token_hash=${tokenHash}&type=recovery&next=/accept-invite`;
+  const link = `${origin}/accept-invite?token_hash=${tokenHash}&type=recovery`;
 
-  return { ok: true, link, emailAttempted, alreadyExisted };
+  return { ok: true, link, alreadyExisted };
 }

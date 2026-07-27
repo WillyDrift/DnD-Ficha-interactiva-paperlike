@@ -12,7 +12,6 @@ export default function AdminClient({ profiles }: { profiles: Profile[] }) {
     | {
         link: string;
         email: string;
-        emailAttempted: boolean;
         alreadyExisted: boolean;
       }
   >(null);
@@ -34,7 +33,6 @@ export default function AdminClient({ profiles }: { profiles: Profile[] }) {
     setResult({
       link: res.link,
       email: email.trim().toLowerCase(),
-      emailAttempted: res.emailAttempted,
       alreadyExisted: res.alreadyExisted,
     });
   }
@@ -100,9 +98,10 @@ export default function AdminClient({ profiles }: { profiles: Profile[] }) {
               </button>
             </div>
             <p className="text-xs mt-3 opacity-60">
-              Nota: el envío automático por email no es fiable en el plan gratuito de
-              Supabase, por eso te damos el enlace directo. (Se puede activar el envío
-              por email configurando un proveedor SMTP.)
+              Envíaselo a la persona. Al abrirlo deberá pulsar “Continuar” para
+              activar su cuenta (así los enlaces no caducan aunque el email o la app
+              de mensajería los previsualice). El enlace vale 24&nbsp;h; si caduca,
+              genera otro aquí.
             </p>
           </div>
         )}
