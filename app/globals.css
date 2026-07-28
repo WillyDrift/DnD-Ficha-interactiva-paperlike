@@ -224,10 +224,6 @@ fieldset.ro-sheet {
 }
 .print-scaler {
   width: 1090px;
-  transform-origin: top left;
-}
-.print-page {
-  overflow: hidden;
 }
 /* La ficha mantiene su diseño multicolumna aunque el contenedor esté oculto */
 .print-all .lg\:grid-cols-3 {

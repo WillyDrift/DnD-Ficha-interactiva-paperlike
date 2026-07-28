@@ -54,19 +54,18 @@ function EditorInner() {
     };
     window.addEventListener("afterprint", finish);
     const timer = setTimeout(() => {
-      // Escala cada página para llenar el ancho de una hoja A4 y caber en una hoja
+      // Escala con zoom (reflow real -> el navegador pagina bien, sin recortes)
       const DESIGN_W = 1090; // ancho del diseño web
-      const PAGE_W = 763; // ancho útil A4 con margen 4mm (px @96dpi)
-      const PAGE_H = 1088; // alto útil A4 con margen 4mm
+      const PAGE_W = 758; // ancho útil A4 con margen 4mm (px @96dpi, con holgura)
+      const PAGE_H = 1060; // alto útil A4 con margen 4mm (con holgura)
       document
         .querySelectorAll<HTMLElement>(".print-all .print-page")
         .forEach((pageEl) => {
           const scaler = pageEl.querySelector<HTMLElement>(".print-scaler");
           if (!scaler) return;
           const h = scaler.scrollHeight;
-          const s = Math.min(PAGE_W / DESIGN_W, PAGE_H / h);
-          scaler.style.transform = `scale(${s})`;
-          pageEl.style.height = Math.ceil(h * s) + "px";
+          const zoom = Math.min(PAGE_W / DESIGN_W, PAGE_H / h);
+          scaler.style.setProperty("zoom", String(zoom));
         });
       window.print();
       setTimeout(finish, 800);
