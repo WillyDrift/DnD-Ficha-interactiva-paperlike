@@ -173,7 +173,7 @@ function BrowseCard({ row }: { row: BrowseRow }) {
 
   return (
     <Link
-      href={`/browse/${row.id}`}
+      href={row.is_mine ? `/character/${row.id}` : `/browse/${row.id}`}
       style={style}
       className="paper frame p-4 flex items-center gap-4 relative group"
     >
@@ -194,7 +194,9 @@ function BrowseCard({ row }: { row: BrowseRow }) {
       <div className="min-w-0 flex-1">
         <div className="flabel text-lg leading-tight truncate">{name}</div>
         <div className="text-sm opacity-75 truncate">{meta || "—"}</div>
-        <div className="text-xs opacity-55 truncate mt-0.5">por {row.owner || "—"}</div>
+        <div className="text-xs opacity-55 truncate mt-0.5">
+          {row.is_mine ? "tuyo · editar" : `por ${row.owner || "—"}`}
+        </div>
       </div>
       {row.is_mine && !row.is_public && (
         <span

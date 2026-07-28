@@ -18,10 +18,13 @@ export default async function CharacterPage({
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  // Solo el propietario puede abrir el editor (aunque RLS ya impide guardar
+  // fichas ajenas, filtramos por user_id para no abrirlas en modo editable).
   const { data: character, error } = await supabase
     .from("characters")
     .select("*")
     .eq("id", id)
+    .eq("user_id", user.id)
     .single();
 
   if (error || !character) notFound();
