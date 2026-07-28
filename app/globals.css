@@ -214,3 +214,55 @@ fieldset.ro-sheet {
   display: none !important;
 }
 
+/* ====================== IMPRESIÓN ====================== */
+.print-all {
+  display: none;
+}
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm;
+  }
+  html,
+  body {
+    background: #ffffff !important;
+  }
+  .paper {
+    min-height: 0 !important;
+    padding-bottom: 0 !important;
+  }
+  .print-screen {
+    display: none !important;
+  }
+  .print-all {
+    display: block !important;
+  }
+  .print-all,
+  .print-all * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .print-page {
+    break-before: page;
+  }
+  .print-page:first-child {
+    break-before: auto;
+  }
+  /* Mantener el diseño multicolumna de la ficha al imprimir */
+  .print-all .lg\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+  .print-all .lg\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .print-all .sm\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+  /* Texto de los campos en color normal (no gris) */
+  .print-all input,
+  .print-all textarea {
+    color: var(--detail) !important;
+    -webkit-text-fill-color: var(--detail);
+  }
+}
+

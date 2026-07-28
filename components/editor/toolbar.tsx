@@ -11,6 +11,7 @@ import {
   FiCheck,
   FiGlobe,
   FiLock,
+  FiPrinter,
 } from "react-icons/fi";
 import { useSheet } from "./sheet-context";
 import { COLOR_PRESETS, DEFAULT_COLORS } from "@/lib/sheet";
@@ -19,9 +20,11 @@ import type { CharacterExport } from "@/lib/types";
 export default function Toolbar({
   page,
   setPage,
+  onPrint,
 }: {
   page: number;
   setPage: (p: number) => void;
+  onPrint: () => void;
 }) {
   const { state, setIsPublic, undo, redo, canUndo, canRedo, saveStatus, devMode } =
     useSheet();
@@ -68,7 +71,7 @@ export default function Toolbar({
   }
 
   return (
-    <div className="sticky top-0 z-30 border-b border-[var(--line-strong)] bg-[var(--bg)]/95 backdrop-blur">
+    <div className="print-screen sticky top-0 z-30 border-b border-[var(--line-strong)] bg-[var(--bg)]/95 backdrop-blur">
       <div className="mx-auto max-w-[1120px] px-2 sm:px-4 py-2 flex items-center gap-2">
         <Link href="/" className="btn btn-ghost !px-2" title="Volver">
           <FiArrowLeft />
@@ -115,8 +118,12 @@ export default function Toolbar({
             {showColors && <ColorPopover onClose={() => setShowColors(false)} />}
           </div>
 
-          <button onClick={exportJSON} className="btn btn-ghost !px-2" title="Exportar ficha (.json)">
+          <button onClick={exportJSON} className="btn btn-ghost !px-2" title="Exportar copia de seguridad (.json)">
             <FiDownload />
+          </button>
+
+          <button onClick={onPrint} className="btn btn-ghost !px-2" title="Imprimir (para llevar en papel)">
+            <FiPrinter />
           </button>
 
           <button
