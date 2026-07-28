@@ -215,8 +215,29 @@ fieldset.ro-sheet {
 }
 
 /* ====================== IMPRESIÓN ====================== */
+/* Cada página web = una hoja. El contenido se mide y se escala para caber en un A4. */
 .print-all {
-  display: none;
+  position: fixed;
+  left: -10000px;
+  top: 0;
+  width: 733px; /* ancho de contenido de un A4 vertical (194mm @96dpi) */
+}
+.print-scaler {
+  width: 733px;
+  transform-origin: top center;
+}
+.print-page {
+  overflow: hidden;
+}
+/* La ficha mantiene su diseño multicolumna aunque el contenedor esté oculto */
+.print-all .lg\:grid-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+.print-all .lg\:grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+.print-all .sm\:grid-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
 }
 @media print {
   @page {
@@ -235,7 +256,9 @@ fieldset.ro-sheet {
     display: none !important;
   }
   .print-all {
-    display: block !important;
+    position: static !important;
+    left: auto !important;
+    width: auto !important;
   }
   .print-all,
   .print-all * {
@@ -248,17 +271,6 @@ fieldset.ro-sheet {
   .print-page:first-child {
     break-before: auto;
   }
-  /* Mantener el diseño multicolumna de la ficha al imprimir */
-  .print-all .lg\:grid-cols-3 {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  }
-  .print-all .lg\:grid-cols-2 {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-  .print-all .sm\:grid-cols-3 {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  }
-  /* Texto de los campos en color normal (no gris) */
   .print-all input,
   .print-all textarea {
     color: var(--detail) !important;

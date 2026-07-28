@@ -53,15 +53,25 @@ function EditorInner() {
       setPrinting(false);
     };
     window.addEventListener("afterprint", finish);
-    const raf = requestAnimationFrame(() =>
-      requestAnimationFrame(() => {
-        window.print();
-        setTimeout(finish, 800);
-      })
-    );
+    const timer = setTimeout(() => {
+      // Escala cada página para que quepa en una sola hoja A4
+      const PAGE_H = 1030; // alto útil de un A4 vertical (px @96dpi) con holgura
+      document
+        .querySelectorAll<HTMLElement>(".print-all .print-page")
+        .forEach((pageEl) => {
+          const scaler = pageEl.querySelector<HTMLElement>(".print-scaler");
+          if (!scaler) return;
+          const h = scaler.scrollHeight;
+          const s = Math.min(1, PAGE_H / h);
+          scaler.style.transform = `scale(${s})`;
+          pageEl.style.height = Math.ceil(h * s) + "px";
+        });
+      window.print();
+      setTimeout(finish, 800);
+    }, 80);
     return () => {
       window.removeEventListener("afterprint", finish);
-      cancelAnimationFrame(raf);
+      clearTimeout(timer);
     };
   }, [printing]);
 
@@ -76,13 +86,19 @@ function EditorInner() {
       {printing && (
         <div className="print-all">
           <div className="print-page">
-            <Page1 />
+            <div className="print-scaler">
+              <Page1 />
+            </div>
           </div>
           <div className="print-page">
-            <Page2 />
+            <div className="print-scaler">
+              <Page2 />
+            </div>
           </div>
           <div className="print-page">
-            <Page3 />
+            <div className="print-scaler">
+              <Page3 />
+            </div>
           </div>
         </div>
       )}
