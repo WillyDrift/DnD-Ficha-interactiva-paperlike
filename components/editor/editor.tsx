@@ -57,7 +57,7 @@ function EditorInner() {
       // Escala con zoom (reflow real -> el navegador pagina bien, sin recortes)
       const DESIGN_W = 1090; // ancho del diseño web
       const PAGE_W = 758; // ancho útil A4 con margen 4mm (px @96dpi, con holgura)
-      const PAGE_H = 1060; // alto útil A4 con margen 4mm (con holgura)
+      const PAGE_H = 980; // alto útil con holgura extra (por encabezados/pies del navegador)
       document
         .querySelectorAll<HTMLElement>(".print-all .print-page")
         .forEach((pageEl) => {
