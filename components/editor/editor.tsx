@@ -54,15 +54,17 @@ function EditorInner() {
     };
     window.addEventListener("afterprint", finish);
     const timer = setTimeout(() => {
-      // Escala cada página para que quepa en una sola hoja A4
-      const PAGE_H = 1030; // alto útil de un A4 vertical (px @96dpi) con holgura
+      // Escala cada página para llenar el ancho de una hoja A4 y caber en una hoja
+      const DESIGN_W = 1090; // ancho del diseño web
+      const PAGE_W = 763; // ancho útil A4 con margen 4mm (px @96dpi)
+      const PAGE_H = 1088; // alto útil A4 con margen 4mm
       document
         .querySelectorAll<HTMLElement>(".print-all .print-page")
         .forEach((pageEl) => {
           const scaler = pageEl.querySelector<HTMLElement>(".print-scaler");
           if (!scaler) return;
           const h = scaler.scrollHeight;
-          const s = Math.min(1, PAGE_H / h);
+          const s = Math.min(PAGE_W / DESIGN_W, PAGE_H / h);
           scaler.style.transform = `scale(${s})`;
           pageEl.style.height = Math.ceil(h * s) + "px";
         });

@@ -220,11 +220,11 @@ fieldset.ro-sheet {
   position: fixed;
   left: -10000px;
   top: 0;
-  width: 733px; /* ancho de contenido de un A4 vertical (194mm @96dpi) */
+  width: 1090px; /* ancho del diseño web (para conservar sus proporciones) */
 }
 .print-scaler {
-  width: 733px;
-  transform-origin: top center;
+  width: 1090px;
+  transform-origin: top left;
 }
 .print-page {
   overflow: hidden;
@@ -242,7 +242,7 @@ fieldset.ro-sheet {
 @media print {
   @page {
     size: A4 portrait;
-    margin: 8mm;
+    margin: 4mm;
   }
   html,
   body {
