@@ -118,7 +118,7 @@ export default function IconBulletList({
             className="sheet-field text-left flex-1 min-w-0 py-0.5 border-b border-[var(--line)]"
           />
 
-          <div className="flex items-center opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition">
+          <div className="edit-only flex items-center opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition">
             <button
               type="button"
               aria-label="Subir"
@@ -150,7 +150,7 @@ export default function IconBulletList({
       <button
         type="button"
         onClick={() => addAfter(rows.length - 1)}
-        className="mt-1 text-xs flex items-center gap-1 opacity-60 hover:opacity-100"
+        className="edit-only mt-1 text-xs flex items-center gap-1 opacity-60 hover:opacity-100"
       >
         <FiPlus size={13} /> Añadir línea
       </button>

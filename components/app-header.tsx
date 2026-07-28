@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { FiSearch } from "react-icons/fi";
 import { createClient } from "@/lib/supabase/client";
 
 export default function AppHeader({
@@ -27,6 +28,10 @@ export default function AppHeader({
           Fichas D&amp;D
         </Link>
         <div className="flex items-center gap-3 text-sm">
+          <Link href="/browse" className="btn btn-ghost">
+            <FiSearch />
+            <span className="hidden sm:inline">Buscar personajes</span>
+          </Link>
           {isAdmin && (
             <Link href="/admin" className="btn btn-ghost">
               Administración

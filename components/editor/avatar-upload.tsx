@@ -160,7 +160,7 @@ export default function AvatarUpload({ size = 96 }: { size?: number }) {
         onChange={onFile}
       />
 
-      <div className="flex items-center gap-2 text-[11px] flex-wrap justify-center">
+      <div className="edit-only flex items-center gap-2 text-[11px] flex-wrap justify-center">
         <button
           type="button"
           onClick={() => fileRef.current?.click()}

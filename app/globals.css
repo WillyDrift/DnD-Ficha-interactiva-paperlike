@@ -193,3 +193,24 @@ body {
 * {
   scrollbar-width: thin;
 }
+
+/* ====================== VISTA SOLO LECTURA ====================== */
+fieldset.ro-sheet {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-inline-size: 0; /* evita que <fieldset> fuerce un ancho mínimo y rompa el grid */
+}
+.ro-sheet input:disabled,
+.ro-sheet textarea:disabled,
+.ro-sheet button:disabled,
+.ro-sheet select:disabled {
+  opacity: 1 !important;
+  color: var(--detail) !important;
+  -webkit-text-fill-color: var(--detail);
+  cursor: default;
+}
+.ro-sheet .edit-only {
+  display: none !important;
+}
+

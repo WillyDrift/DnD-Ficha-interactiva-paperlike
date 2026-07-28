@@ -19,6 +19,7 @@ export type EditState = {
   level: string;
   avatar_url: string | null;
   avatar_thumb_url: string | null;
+  is_public: boolean;
   colors: Colors;
   data: SheetData;
 };
@@ -32,6 +33,7 @@ type Ctx = {
   setData: (updater: (d: SheetData) => SheetData, coalesceKey?: string) => void;
   setTop: (patch: Partial<Pick<EditState, TopKey>>, coalesceKey?: string) => void;
   setColors: (c: Colors) => void;
+  setIsPublic: (v: boolean) => void;
   undo: () => void;
   redo: () => void;
   canUndo: boolean;
@@ -125,6 +127,13 @@ export function SheetProvider({
     [commit]
   );
 
+  const setIsPublic = useCallback(
+    (v: boolean) => {
+      commit({ ...stateRef.current, is_public: v });
+    },
+    [commit]
+  );
+
   const undo = useCallback(() => {
     coalesceRef.current = { key: "", time: 0 };
     setHist((h) => (h.index > 0 ? { ...h, index: h.index - 1 } : h));
@@ -155,6 +164,7 @@ export function SheetProvider({
         level: s.level,
         avatar_url: s.avatar_url,
         avatar_thumb_url: s.avatar_thumb_url,
+        is_public: s.is_public,
         colors: s.colors,
         data: s.data,
       })
@@ -225,6 +235,7 @@ export function SheetProvider({
     setData,
     setTop,
     setColors,
+    setIsPublic,
     undo,
     redo,
     canUndo,

@@ -15,6 +15,7 @@ export type Character = {
   level: string;
   avatar_url: string | null; // imagen completa (se ve en grande)
   avatar_thumb_url: string | null; // recorte para la miniatura
+  is_public: boolean; // visible en el explorador de personajes
   colors: Colors;
   data: SheetData;
   sort_order: number;

@@ -182,7 +182,7 @@ function SpellLevelBlock({ idx }: { idx: number }) {
               type="button"
               onClick={() => removeSpell(sp.id)}
               aria-label="Quitar conjuro"
-              className="p-0.5 opacity-0 group-hover:opacity-60 hover:!opacity-100"
+              className="edit-only p-0.5 opacity-0 group-hover:opacity-60 hover:!opacity-100"
             >
               <FiX size={13} />
             </button>
@@ -192,7 +192,7 @@ function SpellLevelBlock({ idx }: { idx: number }) {
       <button
         type="button"
         onClick={addSpell}
-        className="mt-1 text-xs flex items-center gap-1 opacity-60 hover:opacity-100"
+        className="edit-only mt-1 text-xs flex items-center gap-1 opacity-60 hover:opacity-100"
       >
         <FiPlus size={12} /> Añadir conjuro
       </button>

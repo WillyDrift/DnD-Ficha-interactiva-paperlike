@@ -9,6 +9,8 @@ import {
   FiDownload,
   FiDroplet,
   FiCheck,
+  FiGlobe,
+  FiLock,
 } from "react-icons/fi";
 import { useSheet } from "./sheet-context";
 import { COLOR_PRESETS, DEFAULT_COLORS } from "@/lib/sheet";
@@ -21,7 +23,8 @@ export default function Toolbar({
   page: number;
   setPage: (p: number) => void;
 }) {
-  const { state, undo, redo, canUndo, canRedo, saveStatus, devMode } = useSheet();
+  const { state, setIsPublic, undo, redo, canUndo, canRedo, saveStatus, devMode } =
+    useSheet();
   const [showColors, setShowColors] = useState(false);
 
   async function exportJSON() {
@@ -114,6 +117,19 @@ export default function Toolbar({
 
           <button onClick={exportJSON} className="btn btn-ghost !px-2" title="Exportar ficha (.json)">
             <FiDownload />
+          </button>
+
+          <button
+            onClick={() => setIsPublic(!state.is_public)}
+            className="btn btn-ghost !px-2"
+            title={
+              state.is_public
+                ? "Ficha pública: aparece en «Buscar personajes». Pulsa para hacerla privada."
+                : "Ficha privada: solo tú la ves. Pulsa para hacerla pública."
+            }
+            style={{ color: state.is_public ? "var(--detail)" : "var(--highlight)" }}
+          >
+            {state.is_public ? <FiGlobe /> : <FiLock />}
           </button>
         </div>
 

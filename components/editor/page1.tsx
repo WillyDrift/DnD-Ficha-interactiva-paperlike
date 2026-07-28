@@ -280,7 +280,7 @@ function AttacksBlock() {
           <DamageCell attack={a} />
         </div>
       ))}
-      <button type="button" onClick={add} className="text-xs mt-1 opacity-60 hover:opacity-100">
+      <button type="button" onClick={add} className="edit-only text-xs mt-1 opacity-60 hover:opacity-100">
         + Añadir ataque
       </button>
       <div className="mt-2">

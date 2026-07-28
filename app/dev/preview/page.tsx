@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Editor from "@/components/editor/editor";
+import ReadOnlySheet from "@/components/editor/read-only-sheet";
 import { defaultSheet, DEFAULT_COLORS, newId } from "@/lib/sheet";
 import type { Character } from "@/lib/types";
 
@@ -7,8 +8,13 @@ export const dynamic = "force-dynamic";
 
 // Vista previa SOLO para desarrollo: permite ver/editar la ficha sin login ni
 // base de datos (no guarda nada). No accesible en producción.
-export default function DevPreviewPage() {
+export default async function DevPreviewPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ro?: string }>;
+}) {
   if (process.env.NODE_ENV === "production") notFound();
+  const sp = await searchParams;
 
   const data = defaultSheet();
   data.background = "Artesano gremial";
@@ -53,6 +59,7 @@ export default function DevPreviewPage() {
     avatar_url:
       "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNDAiIGhlaWdodD0iMjQwIj48cmVjdCB3aWR0aD0iMjQwIiBoZWlnaHQ9IjI0MCIgZmlsbD0iIzNhMjQxNyIvPjxjaXJjbGUgY3g9IjEyMCIgY3k9Ijk1IiByPSI0OCIgZmlsbD0iI2M5YTI0YiIvPjxyZWN0IHg9IjU1IiB5PSIxNTAiIHdpZHRoPSIxMzAiIGhlaWdodD0iOTAiIHJ4PSIyNiIgZmlsbD0iIzdhMWYxZiIvPjwvc3ZnPg==",
     avatar_thumb_url: null,
+    is_public: true,
     colors: DEFAULT_COLORS,
     data,
     sort_order: 0,
@@ -60,5 +67,9 @@ export default function DevPreviewPage() {
     updated_at: new Date().toISOString(),
   };
 
-  return <Editor initial={sample} devMode />;
+  return sp.ro ? (
+    <ReadOnlySheet initial={sample} />
+  ) : (
+    <Editor initial={sample} devMode />
+  );
 }
